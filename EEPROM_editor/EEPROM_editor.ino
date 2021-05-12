@@ -19,7 +19,10 @@ const int LCD_DATA_PIN_7 = 10;
 const int LCD_ROWS = 2;
 const int LCD_COLS = 16;
 
+// First EEPROM address displayed on the LCD screen
 int displayedEEPROMOffset = 0;
+
+// EEPROM address where the editor cursor is pointing
 int cursorEEPROMOffset = 0;
 
 PS2KeyAdvanced keyboard;
@@ -65,6 +68,7 @@ void insertChar(char key) {
   moveCursorEEPROMOffset(1);
 }
 
+// Move the displayed window if necessary to include cursor
 void maybeScroll() {
   while (cursorEEPROMOffset >= displayedEEPROMOffset + LCD_COLS) {
     displayedEEPROMOffset++;
@@ -74,8 +78,16 @@ void maybeScroll() {
   }
 }
 
+// Move cursor relative to current position
 void moveCursorEEPROMOffset(int delta) {
   cursorEEPROMOffset = (cursorEEPROMOffset + delta) % EEPROM.length();
+  maybeScroll();
+  displayEEPROM();
+}
+
+// Set cursor at absolute position
+void setCursorEEPROMOffset(int newPosition) {
+  cursorEEPROMOffset = newPosition % EEPROM.length();
   maybeScroll();
   displayEEPROM();
 }
@@ -102,7 +114,10 @@ void loop() {
       moveCursorEEPROMOffset(LCD_COLS);
     } else if (key == 0x111) {
       // home key
-      moveCursorEEPROMOffset(-cursorEEPROMOffset);
+      setCursorEEPROMOffset(0);
+    } else if (key == 0x112) {
+      // end key
+      setCursorEEPROMOffset(EEPROM.length() - 1);
     } else if (key == 0x11C) {
       // backspace
       moveCursorEEPROMOffset(-1);

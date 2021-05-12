@@ -19,10 +19,10 @@ const int LCD_DATA_PIN_7 = 10;
 const int LCD_ROWS = 2;
 const int LCD_COLS = 16;
 
-// First EEPROM address displayed on the LCD screen
+// First EEPROM address currently displayed on the LCD screen
 int displayedEEPROMOffset = 0;
 
-// EEPROM address where the editor cursor is pointing
+// EEPROM address where the editor cursor is
 int cursorEEPROMOffset = 0;
 
 PS2KeyAdvanced keyboard;
@@ -39,6 +39,7 @@ void setup() {
   Serial.println("Ready");
 }
 
+// Redraws the entire editor display
 void displayEEPROM() {
   lcd.clear();
   lcd.write("cur addr: ");
@@ -54,6 +55,7 @@ void displayEEPROM() {
   lcd.setCursor(cursorEEPROMOffset - displayedEEPROMOffset, 1);
 }
 
+// Write char at current cursor position without moving cursor
 void writeChar(char key) {
   Serial.write("Writing 0x");
   Serial.print(key, HEX);
@@ -63,6 +65,7 @@ void writeChar(char key) {
   displayEEPROM();
 }
 
+// Write char at current cursor position and move cursor
 void insertChar(char key) {
   writeChar(key);
   moveCursorEEPROMOffset(1);
@@ -85,7 +88,7 @@ void moveCursorEEPROMOffset(int delta) {
   displayEEPROM();
 }
 
-// Set cursor at absolute position
+// Move cursor at an absolute position
 void setCursorEEPROMOffset(int newPosition) {
   cursorEEPROMOffset = newPosition % EEPROM.length();
   maybeScroll();

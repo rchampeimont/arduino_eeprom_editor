@@ -4,3 +4,6 @@ This is a simple text editor for the Arduino to edit the EEPROM using a PS/2 key
 Libraries to install:
 * PS2KeyAdvanced 1.0.8
 * PS2KeyMap 1.0.6
+
+What it looks like:
+![Photo of the project](/images/photo.jpg?raw=true)

@@ -31,6 +31,8 @@ LiquidCrystal lcd(LCD_RS_PIN, LCD_ENABLE_PIN, LCD_DATA_PIN_4, LCD_DATA_PIN_5, LC
 
 void setup() {
   keyboard.begin(PS2_KEYBOARD_DATA_PIN, PS2_KEYBOARD_CLOCK_PIN);
+  keyboard.resetKey();
+  
   Serial.begin(9600);
   lcd.begin(LCD_COLS, LCD_ROWS);
 
@@ -95,10 +97,14 @@ void setCursorEEPROMOffset(int newPosition) {
   displayEEPROM();
 }
 
+unsigned int ignoreState(unsigned int key) {
+  return key & 0xfff;
+}
+
 void loop() {
   unsigned int key = keyboard.read();
-  if (key) {
-    Serial.write("Key read: 0x");
+  if (key && (key & 0x8000) == 0) {
+    Serial.write("Key pressed: 0x");
     Serial.print(key, HEX);
     Serial.write(" (");
     Serial.write(key);
@@ -106,25 +112,27 @@ void loop() {
     if (key == 0x115) {
       // left arrow
       moveCursorEEPROMOffset(-1);
-    } else if (key == 0x116) {
+    } else if (ignoreState(key) == 0x116) {
       // right arrow
       moveCursorEEPROMOffset(1);
-    } else if (key == 0x113) {
+    } else if (ignoreState(key) == 0x113) {
       // page up
       moveCursorEEPROMOffset(-LCD_COLS);
-    } else if (key == 0x114) {
+    } else if (ignoreState(key) == 0x114) {
       // page down
       moveCursorEEPROMOffset(LCD_COLS);
-    } else if (key == 0x111) {
+    } else if (ignoreState(key) == 0x111) {
       // home key
       setCursorEEPROMOffset(0);
-    } else if (key == 0x112) {
+    } else if (ignoreState(key) == 0x112) {
       // end key
       setCursorEEPROMOffset(EEPROM.length() - 1);
-    } else if (key == 0x11C) {
+    } else if (ignoreState(key) == 0x11C) {
       // backspace
       moveCursorEEPROMOffset(-1);
       writeChar(' ');
+    } else if (key == 0xFA || key == 0xAA) {
+      // ignore it as it's just a keyboard ACK
     } else if ((key & 0x8000) == 0 && keymap.remapKey(key)) {
       // printable character pressed
       insertChar(keymap.remapKey(key));

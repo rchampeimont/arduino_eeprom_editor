@@ -9,3 +9,6 @@ YouTube video: https://www.youtube.com/watch?v=fcJdhSsmdeQ
 
 What it looks like:
 ![Photo of the project](/images/photo.jpg?raw=true)
+
+Schematic:
+![Schematic](/images/schematic.jpg?raw=true)
